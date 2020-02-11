@@ -3,8 +3,10 @@ var fs = require('fs');
 var extract = require('./extract');
 
 var handleError = function (err, res) {
-    res.writeHead(404);
-    res.end();
+    fs.readFile('app/404.html', function (err, data) {
+        res.writeHead(404);
+        res.end(data);
+    });
 };
 
 var server = http.createServer(function (req, res) {
