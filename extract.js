@@ -1,6 +1,6 @@
 var path = require('path');
 
-var extractFilePath = function (url) {
+var extractFilePath = function (url, dir) {
     var filePath;
     var fileName = 'index.html';
 
@@ -9,7 +9,7 @@ var extractFilePath = function (url) {
     }
     console.log('The fileName is: ' + fileName);
 
-    filePath = path.resolve(__dirname, 'app', fileName);
+    filePath = path.resolve(__dirname, dir, fileName);
     return filePath;
 };
 
