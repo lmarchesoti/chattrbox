@@ -19,7 +19,10 @@ ws.on('connection', function (socket) {
         console.log('message received: ' + data);
         messages.push(data);
         ws.clients.forEach(function (clientSocket) {
-            clientSocket.send(data);
+            for (var i = 0; i < messages.length; ++i)
+            {
+                clientSocket.send(data);
+            }
         });
     });
 });
