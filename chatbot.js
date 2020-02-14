@@ -6,12 +6,14 @@ function Bot(name) {
 
     this.chatClient = null;
     this.name = name;
+    this.ready = false;
 
     Bot.prototype.connect = function (url) {
         this.chatClient = new WebSocket(url);
 
         this.chatClient.on('open', function () {
             this.chatClient.send(WELCOME_MESSAGE);
+            this.ready = true;
         }.bind(this));
 
         this.chatClient.on('message', function (data) {
@@ -24,7 +26,7 @@ function Bot(name) {
     };
 
     Bot.prototype.processEvent = function (event) {
-        if (this.chatClient.readyState === 1 && event === 'connection') {
+        if (this.ready && event === 'connection') {
             this.chatClient.send('Welcome to our channel!');
         }
     };
