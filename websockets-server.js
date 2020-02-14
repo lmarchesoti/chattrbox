@@ -5,6 +5,17 @@ var ws = new WebSocketServer({
     port: port
 });
 var messages = [];
+var observers = {'connection': []};
+
+function observe(event, observer) {
+    observers[event].push(observer);
+}
+
+function sendEvent(event) {
+    observers[event].forEach(function (observer) {
+        observer.processEvent(event);
+    });
+}
 
 console.log('websockets server started');
 
@@ -15,6 +26,8 @@ ws.on('connection', function (socket) {
         socket.send(msg);
     });
 
+    sendEvent('connection');
+
     socket.on('message', function (data) {
         console.log('message received: ' + data);
         messages.push(data);
@@ -23,3 +36,5 @@ ws.on('connection', function (socket) {
         });
     });
 });
+
+module.exports = { observe: observe };
