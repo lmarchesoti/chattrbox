@@ -89,3 +89,9 @@ typings/
 
 # IDEA
 .idea/
+
+# Browserify
+*.tmp-browserify*
+
+# Dist folder
+app/scripts/dist
