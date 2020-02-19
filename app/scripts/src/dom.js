@@ -72,6 +72,12 @@ export class ChatList {
         $messageRow.append($message);
         this.$list.append($messageRow);
         $messageRow.get(0).scrollIntoView();
+
+        /* adds new message effect */
+        if ((new Date()).getTime() - t < 2000) {
+            $messageRow.hide().fadeIn();
+            // $messageRow.hide().slideDown();
+        }
     }
 
     init() {
