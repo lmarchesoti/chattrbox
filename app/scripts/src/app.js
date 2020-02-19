@@ -1,5 +1,5 @@
 import socket from './ws-client';
-import {UserStore} from "./storage";
+import {MessageStore, UserStore} from "./storage";
 import {ChatForm, ChatList, promptForUsername} from "./dom";
 
 const FORM_SELECTOR = '[data-chat="chat-form"]';
@@ -13,10 +13,16 @@ if (!username) {
     userStore.set(username);
 }
 
+let messageStore = new MessageStore('x-chattrbox/m');
+
 class ChatApp {
     constructor() {
         this.chatForm = new ChatForm(FORM_SELECTOR, INPUT_SELECTOR);
         this.chatList = new ChatList(LIST_SELECTOR, username);
+
+        messageStore.getAll(msg => new ChatMessage(msg)).forEach((message) => {
+            this.chatList.drawMessage(message.serialize());
+        });
 
         socket.init('ws://localhost:3001');
         socket.registerOpenHandler(() => {
@@ -29,6 +35,7 @@ class ChatApp {
         socket.registerMessageHandler((data) => {
             console.log(data);
             let message = new ChatMessage(data);
+            messageStore.addMessage(message);
             this.chatList.drawMessage(message.serialize());
         });
     }

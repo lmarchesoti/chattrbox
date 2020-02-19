@@ -18,3 +18,34 @@ export class UserStore extends Store {
         this.key = key;
     }
 }
+
+export class MessageStore extends Store {
+    constructor(key) {
+        super(localStorage);
+        this.key = key;
+    }
+
+    addMessage(msg) {
+        let messages = this.get();
+        messages.push(msg);
+        this.set(messages);
+    }
+
+    getAll(fn) {
+        let messages = this.get();
+        return Array.from(messages, fn);
+    }
+
+    get() {
+        let store = JSON.parse(this.api.getItem(this.key));
+        if (store === null) {
+            return [];
+        } else {
+            return store;
+        }
+    }
+
+    set(value) {
+        this.api.setItem(this.key, JSON.stringify(value));
+    }
+}
