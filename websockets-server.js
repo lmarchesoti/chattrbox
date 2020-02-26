@@ -8,10 +8,17 @@ var ws = new WebSocketServer({
 class ChatRoom {
     constructor() {
         this.messages = [];
+        this.clients = [];
     }
 
     addMessage(message) {
         this.messages.push(message);
+        this.broadcast(message);
+    }
+
+    addClient(socket) {
+        this.clients.push(socket);
+        this.sendBacklog(socket);
     }
 
     sendBacklog(socket) {
@@ -21,26 +28,50 @@ class ChatRoom {
     }
 
     broadcast(data) {
-        ws.clients.forEach(function (clientSocket) {
+        this.clients.forEach(function (clientSocket) {
             clientSocket.send(data);
         });
     }
 }
 
-var chatRoom = new ChatRoom();
+var chatRooms = {};
+var userRooms = {};
 
 console.log('websockets server started');
 
-function handleMessage() {
+function handleMessage(payload) {
+    let room = userRooms[payload.user] || 'Lobby';
+    chatRooms[room].addMessage(JSON.stringify(payload.data));
+}
+
+function handleEnterRoom(payload) {
+    let room = payload.data;
+    if (!Object.keys(chatRooms).includes(room)) {
+        chatRooms[room] = new ChatRoom();
+    }
+    chatRooms[room].addClient(this);
+    userRooms[payload.user] = room;
+}
+
+function handlePayload() {
     return function (data) {
         console.log('message received: ' + data);
-        chatRoom.addMessage(data);
-        chatRoom.broadcast(data);
+        let payload = JSON.parse(data);
+
+        switch (payload.command) {
+            case "message":
+                handleMessage(payload);
+                break;
+            case "enter-room":
+                handleEnterRoom.call(this, payload);
+                break;
+            default:
+                break;
+        }
     };
 }
 
 ws.on('connection', function (socket) {
     console.log('client connection established');
-    chatRoom.sendBacklog(socket);
-    socket.on('message', handleMessage());
+    socket.on('message', handlePayload());
 });

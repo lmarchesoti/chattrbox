@@ -12,6 +12,11 @@ export function promptForUsername() {
     return username.toLowerCase();
 }
 
+export function promptForRoom() {
+    let room = prompt('Enter a chat room');
+    return room.toLowerCase();
+}
+
 export class ChatForm {
     constructor(formSel, inputSel) {
         this.$form = $(formSel);

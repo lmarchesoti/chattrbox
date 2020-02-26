@@ -1,6 +1,6 @@
 import socket from './ws-client';
 import {UserStore} from "./storage";
-import {ChatForm, ChatList, promptForUsername} from "./dom";
+import {ChatForm, ChatList, promptForRoom, promptForUsername} from "./dom";
 
 const FORM_SELECTOR = '[data-chat="chat-form"]';
 const INPUT_SELECTOR = '[data-chat="message-input"]';
@@ -13,6 +13,8 @@ if (!username) {
     userStore.set(username);
 }
 
+let room = promptForRoom();
+
 class ChatApp {
     constructor() {
         this.chatForm = new ChatForm(FORM_SELECTOR, INPUT_SELECTOR);
@@ -22,9 +24,11 @@ class ChatApp {
         socket.registerOpenHandler(() => {
             this.chatForm.init((data) => {
                 let message = new ChatMessage({message: data});
-                socket.sendMessage(message.serialize());
+                let payload = new Payload({command: 'message', data: message});
+                socket.sendMessage(payload.serialize());
             });
             this.chatList.init();
+            socket.sendMessage((new Payload({command: 'enter-room', data: room})).serialize());
         });
         socket.registerMessageHandler((data) => {
             console.log(data);
@@ -51,6 +55,26 @@ class ChatMessage {
             message: this.message,
             timestamp: this.timestamp
         };
+    }
+}
+
+class Payload {
+    constructor({
+                    user: u = username,
+                    command: c,
+                    data: d
+                }) {
+        this.user = u;
+        this.command = c;
+        this.data = d;
+    }
+
+    serialize() {
+        return {
+            user: this.user,
+            command: this.command,
+            data: this.data
+        }
     }
 }
 
