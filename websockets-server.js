@@ -4,22 +4,43 @@ var port = 3001;
 var ws = new WebSocketServer({
     port: port
 });
-var messages = [];
 
-console.log('websockets server started');
+class ChatRoom {
+    constructor() {
+        this.messages = [];
+    }
 
-ws.on('connection', function (socket) {
-    console.log('client connection established');
+    addMessage(message) {
+        this.messages.push(message);
+    }
 
-    messages.forEach(function (msg) {
-        socket.send(msg);
-    });
+    sendBacklog(socket) {
+        this.messages.forEach(function (msg) {
+            socket.send(msg);
+        });
+    }
 
-    socket.on('message', function (data) {
-        console.log('message received: ' + data);
-        messages.push(data);
+    broadcast(data) {
         ws.clients.forEach(function (clientSocket) {
             clientSocket.send(data);
         });
-    });
+    }
+}
+
+var chatRoom = new ChatRoom();
+
+console.log('websockets server started');
+
+function handleMessage() {
+    return function (data) {
+        console.log('message received: ' + data);
+        chatRoom.addMessage(data);
+        chatRoom.broadcast(data);
+    };
+}
+
+ws.on('connection', function (socket) {
+    console.log('client connection established');
+    chatRoom.sendBacklog(socket);
+    socket.on('message', handleMessage());
 });
