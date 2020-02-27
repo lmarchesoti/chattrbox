@@ -80,21 +80,32 @@ function enterNewRoom(payload) {
     userRooms[username] = room;
 }
 
-function validateOpenRoom(payload) {
+function ensureRoomExists(payload) {
     let room = payload.data;
     if (!Object.keys(chatRooms).includes(room)) {
         chatRooms[room] = new ChatRoom();
+        broadcastRooms();
     }
 }
 
 function handleEnterRoom(payload) {
-    validateOpenRoom(payload);
+    ensureRoomExists(payload);
     exitOldRoom(payload);
     enterNewRoom.call(this, payload);
 }
 
-function handleGetRooms(socket) {
+function broadcastRooms() {
+    ws.clients.forEach((clientSocket) => {
+        sendRooms(clientSocket);
+    });
+}
+
+function sendRooms(socket) {
     socket.send(JSON.stringify(new Payload({command: 'rooms', data: Object.keys(chatRooms)})));
+}
+
+function handleGetRooms(socket) {
+    sendRooms(socket);
 }
 
 function handlePayload() {
