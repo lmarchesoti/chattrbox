@@ -29,11 +29,22 @@ class ChatApp {
             });
             this.chatList.init();
             socket.sendMessage((new Payload({command: 'enter-room', data: room})).serialize());
+            socket.sendMessage((new Payload({command: 'get-rooms'})));
         });
         socket.registerMessageHandler((data) => {
             console.log(data);
-            let message = new ChatMessage(data);
-            this.chatList.drawMessage(message.serialize());
+            let payload = new Payload(data);
+            switch (payload.command) {
+                case 'message':
+                    let message = new ChatMessage(JSON.parse(payload.data));
+                    this.chatList.drawMessage(message.serialize());
+                    break;
+                case 'rooms':
+                    console.log(payload.data);
+                    break;
+                default:
+                    break;
+            }
         });
     }
 }
