@@ -89,4 +89,42 @@ export class ChatList {
             });
         }, 1000);
     }
+
+    clearMessages() {
+        this.$list.empty();
+    }
+}
+
+export class ChatRoomController {
+    constructor(roomFormSel, roomListSel) {
+        this.$form = $(roomFormSel);
+        this.$list = $(roomListSel);
+    }
+
+    addRoom(room) {
+        let $roomItem = $('<option></option>', {
+            'class': 'room-item',
+            value: room,
+            text: room
+        });
+        this.$list.append($roomItem);
+    }
+
+    refresh(rooms) {
+        this.$list.empty();
+        rooms.forEach((room) => {
+            this.addRoom(room);
+        });
+    }
+
+    addSubmitHandler(fn) {
+        this.$form.on('submit',(event) => {
+            event.preventDefault();
+            fn(this.$form.find('select').val());
+        });
+    }
+
+    setCurrent(room) {
+        this.$list.val(room);
+    }
 }

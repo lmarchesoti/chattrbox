@@ -79,6 +79,24 @@
             font-style: italic;
             /*        display: block; */
         }
+
+        .chat-room-select {
+            display: flex;
+            flex-direction: row;
+            flex: auto;
+            margin: 2px;
+        }
+
+        .chat-app-room {
+            display: flex;
+        }
+
+        .chat-app-room button {
+            display: flex;
+            flex: initial;
+            margin: 2px;
+        }
+
     </style>
 </head>
 <body class="container chat-wrapper">
@@ -86,6 +104,17 @@
 <header class="chat-app-header">
     <h1>Chattrbox</h1>
 </header>
+
+<section class="chat-room-selection">
+    <form data-chat="chat-room-form">
+        <div class="chat-app-room form-group" data-chat="chat-room-list">
+            <select id="chat-room" class="form-control chat-room-select"
+                    data-chat="chat-room-select" name="room">
+            </select>
+            <button class="btn btn-default" type="submit">Change room</button>
+        </div>
+    </form>
+</section>
 
 <div class="panel panel-default chat-messages">
     <ul class="panel-body chat-message-list" data-chat="message-list"></ul>
